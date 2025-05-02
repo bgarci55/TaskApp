@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task Tracker</title>
+</head>
+<body>
+    <h1>Task Tracker</h1>
+
+    <h2>Tasks:</h2>
+    <ul>
+        {% for task_id, task in tasks.items() %}
+        <li>
+            Task ID: {{ task_id }} - Title: {{ task.title }} - Progress: {{ task.progress }}
+        </li>
+        {% else %}
+        <li>No tasks available.</li>
+        {% endfor %}
+    </ul>
+</body>
+</html>
