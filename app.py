@@ -1,13 +1,12 @@
-from flask import Flask, render_template, request, redirect, url_for
-from task_manager import TaskManager
+from fastapi import FastAPI
+import uvicorn
 
-app = Flask(__name__)
+app = FastAPI()
 
-task_manager = TaskManager()
 
-@app.route('/')
-def index():
-    return render_template('index.html', tasks=task_manager.tasks)
+@app.get('/')
+def root():
+    return {'message': 'Hello World'}
 
-if __name__ == '__main__':
-    app.run(debug=True)
+if __name__ == "__main__":
+    uvicorn.run(app, host="0.0.0.0", port=8000)

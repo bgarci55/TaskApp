@@ -1,58 +1,72 @@
-class TaskManager:
-    def __init__(self):
-        self.tasks = {}
-        self.task_id_counter = 0
+import json
+import os
+from fastapi import HTTPException
 
-    def add(self, title):
-        task_id = self.task_id_counter
-        self.tasks[task_id] = {"title": title, "progress": 0}
-        print("Task added successfully: " + title + " ( TaskID:", task_id, ")")
-        self.task_id_counter += 1
+FILE_PATH = "task_data.json"
 
-    def update(self, task_id, new_title):
-        print("Task to be updated:", task_id)
-        while True:
-            verify = input("> Are you sure you want to update this task? (Y/N): ")
-            if verify == "Y":
-                self.tasks[task_id]["title"] = new_title
-                self.tasks[task_id]["progress"] = 0
-                print("Task updated successfully: " + new_title + " ( TaskID:", task_id, ")")
-                break
-            elif verify == "N":
-                print("Task was not updated.")
-                break
-            else:
-                print("Try again. Enter (Y) for Yes, and (N) for no.")
+def load_tasks():
+    if not os.path.exists(FILE_PATH):
+        return []
+    with open(FILE_PATH, "r") as f:
+        return json.load(f)
 
-    # add logic for deleting tasks
-    def delete(self, task_id):
-        print("Task to be deleted:", task_id)
-        while True:
-            verify = input("> Are you sure you want to delete this task? (Y/N): ")
-            if verify == "Y":
-                print("Task has been successfully deleted.")
-                break
-            elif verify == "N":
-                print("Task was not deleted.")
-                break
-            else:
-                print("Try again. Enter (Y) for Yes, and (N) for no.")
+def save_tasks(tasks):
+    with open(FILE_PATH, "w") as f:
+        json.dump(tasks, f, indent=2)
 
-    def mark_in_progress(self, task_id):
-        self.tasks[task_id]["progress"] = 1
-        print("Task marked as in progress: " + " ( TaskID:", task_id, ")")
+def get_new_id(tasks):
+    return max([t["id"] for t in tasks], default=0) + 1
 
-    def mark_complete(self, task_id):
-        self.tasks[task_id]["progress"] = 2
-        print("Task marked as complete: " + " ( TaskID:", task_id, ")")
+def add(title):
+    tasks = load_tasks()
+    new_id = get_new_id(tasks)
+    tasks[new_id] = {"title": title, "progress": 0}
+    print("Task added successfully: " + title + " ( TaskID:", new_id, ")")
 
-    def list_tasks(self):
-        x = self.tasks.items()
-        print(x)
+def update(task_id, new_title):
+    tasks = load_tasks()
+    for task in tasks:
+        if task["id"] == task_id:
+            task["title"] = new_title
+            save_tasks(tasks)
+            return task
+    raise HTTPException(status_code=404, detail="Task not found.")
 
 
-    # def list_todo():
-    #
-    # def list_in_progress():
-    #
-    # def list_complete():
+# add logic for deleting tasks
+def delete(task_id):
+    tasks = load_tasks()
+    for task in tasks:
+        if task["id"] == task_id:
+            tasks.remove(task)
+            save_tasks(tasks)
+            return task
+    raise HTTPException(status_code=404, detail="Task not found.")
+
+def mark_in_progress(task_id):
+    tasks = load_tasks()
+    for task in tasks:
+        if task["id"] == task_id:
+            task["progress"] = 1
+            save_tasks(tasks)
+            return task
+    raise HTTPException(status_code=404, detail="Task not found.")
+
+def mark_complete(task_id):
+    tasks = load_tasks()
+    for task in tasks:
+        if task["id"] == task_id:
+            task["progress"] = 2
+            save_tasks(tasks)
+            return task
+    raise HTTPException(status_code=404, detail="Task not found.")
+
+
+
+
+# def list_todo():
+#
+# def list_in_progress():
+#
+# def list_complete():
+
