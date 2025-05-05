@@ -2,7 +2,7 @@ import json
 import os
 from fastapi import HTTPException
 
-FILE_PATH = "task_data.json"
+FILE_PATH = "data/task_data.json"
 
 def load_tasks():
     if not os.path.exists(FILE_PATH):
