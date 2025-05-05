@@ -1,9 +1,17 @@
-from fastapi import FastAPI
 import uvicorn
-from pydantic import BaseModel
+from starlette.responses import HTMLResponse
+from starlette.staticfiles import StaticFiles
 import task_manager
+from fastapi import FastAPI
+from pydantic import BaseModel
+from fastapi.templating import Jinja2Templates
 
 app = FastAPI()
+templates = Jinja2Templates(directory="templates")
+@app.get("/", response_class=HTMLResponse)
+async def read_root(request: Request):
+    return templates.TemplateResponse("index.html", {"request": request, "name": "World"})
+app.mount("/static", StaticFiles(directory="static"), name="static")
 
 class TaskIn(BaseModel):
     title: str
